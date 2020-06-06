@@ -5,15 +5,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
 	"io"
 	"log"
 	"net/http"
 	"os"
 
+	"./token"
+
 	_ "github.com/go-sql-driver/mysql"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/joho/godotenv"
 )
 
@@ -25,42 +25,6 @@ type userJSON struct {
 // userのtokenのjson用の構造体
 type tokenJSON struct {
 	Token string `json:"token"`
-}
-
-type errorMessageJSON struct {
-	Massage string `json:"massage"`
-}
-
-// UUID取得関数
-func getUuid() uuid.UUID {
-	u, err := uuid.NewRandom()
-	if err != nil {
-		fmt.Println(err)
-	}
-	return u
-}
-
-// Token 作成関数
-func createToken(user userJSON) (string, error) {
-	// 鍵となる文字列(多分なんでもいい)
-	secret := "secret"
-
-	// Token を作成
-	// jwt -> JSON Web Token - JSON をセキュアにやり取りするための仕様
-	// jwtの構造 -> {Base64 encoded Header}.{Base64 encoded Payload}.{Signature}
-	// HS254 -> 証明生成用(https://ja.wikipedia.org/wiki/JSON_Web_Token)
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"uuid": getUuid(),
-		"name": user.Name,
-		"iss":  "__init__", // JWT の発行者が入る(文字列(__init__)は任意)
-	})
-
-	tokenString, err := token.SignedString([]byte(secret))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return tokenString, nil
 }
 
 // ユーザー作成
@@ -81,11 +45,8 @@ func create(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		// jwtでtoken作成
-		token, err := createToken(user)
-		if err != nil {
-			log.Fatal(err)
-		}
+		// tokenとしてuuid作成
+		token := token.CreateToken()
 
 		// DBに追加
 		//レコードを取得する必要のない、クエリはExecメソッドを使う。
