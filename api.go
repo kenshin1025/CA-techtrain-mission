@@ -3,18 +3,19 @@ package main
 import (
 	"bytes"
 	"database/sql"
-	"fmt"
 	"encoding/json"
-	_ "github.com/go-sql-driver/mysql"
+	"fmt"
+	"github.com/google/uuid"
 	"io"
 	"log"
 	"net/http"
+	"os"
+
+	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/joho/godotenv"
 )
-
-// dbを全ての関数で使いたいので宣言
-var db *sql.DB
 
 // user情報のjson用の構造体
 type userJSON struct {
@@ -26,10 +27,21 @@ type tokenJSON struct {
 	Token string `json:"token"`
 }
 
+type errorMessageJSON struct {
+	Massage string `json:"massage"`
+}
+
+// UUID取得関数
+func getUuid() uuid.UUID {
+	u, err := uuid.NewRandom()
+	if err != nil {
+		fmt.Println(err)
+	}
+	return u
+}
+
 // Token 作成関数
 func createToken(user userJSON) (string, error) {
-	var err error
-
 	// 鍵となる文字列(多分なんでもいい)
 	secret := "secret"
 
@@ -38,12 +50,12 @@ func createToken(user userJSON) (string, error) {
 	// jwtの構造 -> {Base64 encoded Header}.{Base64 encoded Payload}.{Signature}
 	// HS254 -> 証明生成用(https://ja.wikipedia.org/wiki/JSON_Web_Token)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"uuid": getUuid(),
 		"name": user.Name,
-		"iss":   "__init__", // JWT の発行者が入る(文字列(__init__)は任意)
+		"iss":  "__init__", // JWT の発行者が入る(文字列(__init__)は任意)
 	})
 
 	tokenString, err := token.SignedString([]byte(secret))
-
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,7 +64,7 @@ func createToken(user userJSON) (string, error) {
 }
 
 // ユーザー作成
-func create(w http.ResponseWriter, r *http.Request) {
+func create(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	switch r.Method {
 	case "POST":
 		// リクエストbody(json)を受け取る
@@ -65,10 +77,15 @@ func create(w http.ResponseWriter, r *http.Request) {
 
 		// byte配列にしたbody内のjsonをgoで扱えるようにobjectに変換
 		var user userJSON
-		json.Unmarshal(buf.Bytes(), &user)
-
+		err := json.Unmarshal(buf.Bytes(), &user)
+		if err != nil {
+			log.Fatal(err)
+		}
 		// jwtでtoken作成
 		token, err := createToken(user)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		// DBに追加
 		//レコードを取得する必要のない、クエリはExecメソッドを使う。
@@ -80,7 +97,6 @@ func create(w http.ResponseWriter, r *http.Request) {
 		// レスポンス用のjson生成
 		t := tokenJSON{token}
 		res, err := json.Marshal(t)
-
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -94,7 +110,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func get(w http.ResponseWriter, r *http.Request) {
+func get(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	switch r.Method {
 	case "GET":
 		// リクエストheaderを受け取る
@@ -102,7 +118,8 @@ func get(w http.ResponseWriter, r *http.Request) {
 
 		// tokenを元にユーザーのnameを取得
 		var name string
-		if err := db.QueryRow("SELECT name FROM user WHERE token = ?", header.Get("x-token")).Scan(&name); err != nil {
+		err := db.QueryRow("SELECT name FROM user WHERE token = ?", header.Get("x-token")).Scan(&name)
+		if err != nil {
 			log.Fatal(err)
 		}
 
@@ -121,7 +138,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func update(w http.ResponseWriter, r *http.Request) {
+func update(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	switch r.Method {
 	case "PUT":
 		// リクエストを受け取る
@@ -151,16 +168,29 @@ func update(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var err error
 	fmt.Printf("Starting server at 'localhost:8080'\n")
-	db, err = sql.Open("mysql", "root:@/ca_mission")
+
+	err := godotenv.Load("./.env")
 	if err != nil {
-		panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
+		log.Fatal(err)
+	}
+
+	//.envファイルからdataSourceNameを作成してDBに接続する
+	dsn := fmt.Sprintf("%s:@%s/%s", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatal(err)
 	}
 	defer db.Close()
 
-	http.HandleFunc("/user/create", create)
-	http.HandleFunc("/user/get", get)
-	http.HandleFunc("/user/update", update)
+	http.HandleFunc("/user/create", func(w http.ResponseWriter, r *http.Request) {
+		create(w, r, db)
+	})
+	http.HandleFunc("/user/get", func(w http.ResponseWriter, r *http.Request) {
+		get(w, r, db)
+	})
+	http.HandleFunc("/user/update", func(w http.ResponseWriter, r *http.Request) {
+		update(w, r, db)
+	})
 	http.ListenAndServe(":8080", nil)
 }
