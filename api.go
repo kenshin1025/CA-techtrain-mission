@@ -11,6 +11,7 @@ import (
 	"os"
 
 	"./token"
+	"./error"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -67,7 +68,7 @@ func create(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.Write(res)
 
 	default:
-		fmt.Fprint(w, "Method not allowed.\n")
+		w = error.Respons405(w)
 	}
 }
 
@@ -95,7 +96,7 @@ func get(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.WriteHeader(http.StatusOK)
 		w.Write(res)
 	default:
-		fmt.Fprint(w, "Method not allowed.\n")
+		w = error.Respons405(w)
 	}
 }
 
@@ -124,7 +125,7 @@ func update(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		// レスポンス
 		w.WriteHeader(http.StatusOK)
 	default:
-		fmt.Fprint(w, "Method not allowed.\n")
+		w = error.Respons405(w)
 	}
 }
 
