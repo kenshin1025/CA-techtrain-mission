@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"./token"
 	"./error"
@@ -18,13 +19,21 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type User struct {
+	ID        int       `db:"id"`
+	Name      string    `db:"name"`
+	Token     string    `db:"token"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
+}
+
 // user情報のjson用の構造体
-type userJSON struct {
+type UserName struct {
 	Name string `json:"name"`
 }
 
 // userのtokenのjson用の構造体
-type tokenJSON struct {
+type UserToken struct {
 	Token string `json:"token"`
 }
 
@@ -41,23 +50,27 @@ func create(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		io.Copy(buf, body)
 
 		// byte配列にしたbody内のjsonをgoで扱えるようにobjectに変換
-		var user userJSON
-		err := json.Unmarshal(buf.Bytes(), &user)
+		var name UserName
+		err := json.Unmarshal(buf.Bytes(), &name)
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		// tokenとしてuuid作成
-		token := token.CreateToken()
+		token, err := token.CreateToken()
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		// DBに追加
 		//レコードを取得する必要のない、クエリはExecメソッドを使う。
-		_, err = db.Exec("INSERT INTO user(name, token) VALUES(?,?)", user.Name, token)
+		_, err = db.Exec("INSERT INTO user(name, token) VALUES(?,?)", name.Name, token)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		// レスポンス用のjson生成
-		t := tokenJSON{token}
+		t := UserToken{token}
 		res, err := json.Marshal(t)
 		if err != nil {
 			log.Fatal(err)
@@ -86,7 +99,7 @@ func get(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		}
 
 		// レスポンス用のjson生成
-		u := userJSON{name}
+		u := UserName{name}
 		res, err := json.Marshal(u)
 		if err != nil {
 			log.Fatal(err)
@@ -113,11 +126,11 @@ func update(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		io.Copy(buf, body)
 
 		// byte配列にしたbody内のjsonをgoで扱えるようにobjectに変換
-		var user userJSON
-		json.Unmarshal(buf.Bytes(), &user)
+		var name UserName
+		json.Unmarshal(buf.Bytes(), &name)
 
 		// tokenを元にユーザーのnameを更新
-		_, err := db.Exec("UPDATE user SET name = ? WHERE token = ?", user.Name, header.Get("x-token"))
+		_, err := db.Exec("UPDATE user SET name = ? WHERE token = ?", name.Name, header.Get("x-token"))
 		if err != nil {
 			log.Fatal(err)
 		}
