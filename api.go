@@ -12,8 +12,6 @@ import (
 	"time"
 
 	"./token"
-	"./error"
-
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/joho/godotenv"
@@ -81,7 +79,8 @@ func create(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.Write(res)
 
 	default:
-		w = error.Respons405(w)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte(http.StatusText(http.StatusMethodNotAllowed)))
 	}
 }
 
@@ -109,7 +108,8 @@ func get(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.WriteHeader(http.StatusOK)
 		w.Write(res)
 	default:
-		w = error.Respons405(w)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte(http.StatusText(http.StatusMethodNotAllowed)))
 	}
 }
 
@@ -138,7 +138,8 @@ func update(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		// レスポンス
 		w.WriteHeader(http.StatusOK)
 	default:
-		w = error.Respons405(w)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		w.Write([]byte(http.StatusText(http.StatusMethodNotAllowed)))
 	}
 }
 
