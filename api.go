@@ -60,9 +60,22 @@ func create(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 			log.Fatal(err)
 		}
 
+		// トランザクション開始
+		tx, err := db.Begin()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		// DBに追加
 		//レコードを取得する必要のない、クエリはExecメソッドを使う。
-		_, err = db.Exec("INSERT INTO user(name, token) VALUES(?,?)", name.Name, token)
+		_, execErr := tx.Exec("INSERT INTO user(name, token) VALUES(?,?)", name.Name, token)
+		//エラーが起きたらロールバック
+		if execErr != nil {
+			_ = tx.Rollback()
+			log.Fatal(execErr)
+		}
+		// エラーが起きなければコミット
+		err = tx.Commit();
 		if err != nil {
 			log.Fatal(err)
 		}
