@@ -154,8 +154,20 @@ func update(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		var name UserName
 		json.Unmarshal(buf.Bytes(), &name)
 
+		// トランザクション開始
+		tx, err := db.Begin()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		// tokenを元にユーザーのnameを更新
-		_, err := db.Exec("UPDATE user SET name = ? WHERE token = ?", name.Name, header.Get("x-token"))
+		_, execErr := tx.Exec("UPDATE user SET name = ? WHERE token = ?", name.Name, header.Get("x-token"))
+		if execErr != nil {
+			_ = tx.Rollback()
+			log.Fatal(execErr)
+		}
+		// エラーが起きなければコミット
+		err = tx.Commit();
 		if err != nil {
 			log.Fatal(err)
 		}
