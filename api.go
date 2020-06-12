@@ -103,9 +103,21 @@ func get(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		// リクエストheaderを受け取る
 		header := r.Header
 
+		// トランザクション開始
+		tx, err := db.Begin()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		// tokenを元にユーザーのnameを取得
 		var name string
-		err := db.QueryRow("SELECT name FROM user WHERE token = ?", header.Get("x-token")).Scan(&name)
+		execErr := tx.QueryRow("SELECT name FROM user WHERE token = ?", header.Get("x-token")).Scan(&name)
+		if execErr != nil {
+			_ = tx.Rollback()
+			log.Fatal(execErr)
+		}
+		// エラーが起きなければコミット
+		err = tx.Commit();
 		if err != nil {
 			log.Fatal(err)
 		}
