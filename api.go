@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"./token"
+	"./myError"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/joho/godotenv"
@@ -92,8 +93,10 @@ func create(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.Write(res)
 
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte(http.StatusText(http.StatusMethodNotAllowed)))
+		err := myError.ErrorResponse(w, http.StatusMethodNotAllowed)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -133,8 +136,10 @@ func get(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		w.WriteHeader(http.StatusOK)
 		w.Write(res)
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte(http.StatusText(http.StatusMethodNotAllowed)))
+		err := myError.ErrorResponse(w, http.StatusMethodNotAllowed)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -175,8 +180,10 @@ func update(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		// レスポンス
 		w.WriteHeader(http.StatusOK)
 	default:
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		w.Write([]byte(http.StatusText(http.StatusMethodNotAllowed)))
+		err := myError.ErrorResponse(w, http.StatusMethodNotAllowed)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
