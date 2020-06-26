@@ -1,0 +1,23 @@
+user
+-
+id PK int 
+name varchar(100)
+taken varchar(200)
+created_at 
+
+character
+-
+id PK varchar(36)
+name varchar(100)
+
+user_have_character
+-
+id PK varchar(36)
+user_id int FK >- user.id
+character_id varchar(36) FK >- character.id
+
+character_rate
+-
+id PK int
+character_id varchar(36) FK >- character.id
+rate int
