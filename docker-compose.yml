@@ -1,0 +1,19 @@
+version: "3"
+services:
+  db:
+    build: ./db
+    container_name: db
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d
+  go: # service名
+    build: ./go # ビルドに使用するDockerfileがあるディレクトリ指定
+    container_name: go
+    volumes:
+      - ./go/:/go/src/app
+    ports:
+      - "8080:8080"
