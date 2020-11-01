@@ -202,8 +202,12 @@ func update(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
+func test(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "ok")
+}
+
 func main() {
-	fmt.Printf("Starting server at 'localhost:8080'\n")
+	fmt.Printf("Starting server at 'http://localhost:8080'\n")
 
 	err := godotenv.Load("./.env")
 	if err != nil {
@@ -211,12 +215,14 @@ func main() {
 	}
 
 	//.envファイルからdataSourceNameを作成してDBに接続する
-	dsn := fmt.Sprintf("%s:@%s/%s", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_NAME"))
+	dsn := fmt.Sprintf("%s:%s@tcp(db:3306)/%s", os.Getenv("DB_USER"), os.Getenv("DB_PASS"), os.Getenv("DB_DATABASE"))
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	http.HandleFunc("/", test)
 
 	http.HandleFunc("/user/create", func(w http.ResponseWriter, r *http.Request) {
 		create(w, r, db)
