@@ -3,15 +3,16 @@ services:
   db:
     build: ./db
     container_name: db
+    ports:
+      - 3306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: root-pass
-      MYSQL_DATABASE: database
-      MYSQL_USER: user
-      MYSQL_PASSWORD: pass
-    # volumes:
-    #   - ./db/init:/docker-entrypoint-initdb.d
-  go: # service名
-    build: ./go # ビルドに使用するDockerfileがあるディレクトリ指定
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./db/init:/docker-entrypoint-initdb.d
+    # command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+
+  go:
+    build: ./go
     container_name: go
     volumes:
       - ./go/:/go/src/app
