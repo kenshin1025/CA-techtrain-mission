@@ -206,6 +206,10 @@ func test(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "ok")
 }
 
+func gacha(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	fmt.Fprint(w, "gacha")
+}
+
 func main() {
 	fmt.Printf("Starting server at 'http://localhost:8080'\n")
 
@@ -232,6 +236,9 @@ func main() {
 	})
 	http.HandleFunc("/user/update", func(w http.ResponseWriter, r *http.Request) {
 		update(w, r, db)
+	})
+	http.HandleFunc("/gacha/draw", func(w http.ResponseWriter, r *http.Request) {
+		gacha(w, r, db)
 	})
 	http.ListenAndServe(":8080", nil)
 }
