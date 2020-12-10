@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"time"
 
-	"ca-mission/pkg/myError"
-	"ca-mission/pkg/token"
+	"ca-mission/api/middleware/myError"
+	"ca-mission/api/middleware/token"
 
 	"github.com/go-playground/validator"
 	_ "github.com/go-sql-driver/mysql"
