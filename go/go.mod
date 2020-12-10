@@ -1,4 +1,4 @@
-module github.com/kenshin1025/CA-techtrain-mission
+module ca-mission
 
 go 1.14
 
