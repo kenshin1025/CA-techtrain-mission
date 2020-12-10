@@ -12,9 +12,9 @@ services:
     # command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
 
   go:
-    build: ./go
+    build: .
     container_name: go
     volumes:
-      - ./go/:/go/src/app
+      - ./:/go/src/app
     ports:
       - "8080:8080"
