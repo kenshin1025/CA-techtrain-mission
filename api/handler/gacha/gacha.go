@@ -23,7 +23,6 @@ func Draw(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		fmt.Fprint(w, "エラーやんけ！")
 		return
 	}
-	fmt.Println(character.name)
 	fmt.Fprint(w, character.name)
 }
 

@@ -9,7 +9,8 @@ services:
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - ./db/init.d:/docker-entrypoint-initdb.d
-    # command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
+    # command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   go:
     build: .
