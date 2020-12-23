@@ -1,29 +1,68 @@
 package gacha
 
 import (
+	"bytes"
 	"database/sql"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 )
 
 type Rarity struct {
-	probability float64
-	charas      []Character
+	Probability float64
+	Charas      []Character
 }
 
 type Character struct {
-	id   string
-	name string
+	ID   string `json:"characterID"`
+	Name string `json:"name"`
+}
+
+type Response struct {
+	Results []Character `json:"results"`
+}
+
+type DrawTimes struct {
+	Times int `json:"times"`
 }
 
 func Draw(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	character, err := oneDraw(0.01, db)
-	if err != nil {
-		fmt.Fprint(w, "エラーやんけ！")
-		return
+	switch r.Method {
+	case "POST":
+		// リクエストbody(json)を受け取る
+		body := r.Body
+		defer body.Close()
+
+		// byte配列に変換するためにcopy
+		buf := new(bytes.Buffer)
+		io.Copy(buf, body)
+
+		//繰り返す回数
+		var times DrawTimes
+		err := json.Unmarshal(buf.Bytes(), &times)
+
+		var res Response
+		for i := 0; i < times.Times; i++ {
+			character, err := oneDraw(0.01, db)
+			if err != nil {
+				fmt.Fprint(w, err)
+				return
+			}
+			res.Results = append(res.Results, *character)
+		}
+
+		resJSON, err := json.Marshal(res)
+		if err != nil {
+			fmt.Fprint(w, err)
+			return
+		}
+
+		// レスポンス
+		w.WriteHeader(http.StatusOK)
+		w.Write(resJSON)
 	}
-	fmt.Fprint(w, character.name)
 }
 
 func oneDraw(n float64, db *sql.DB) (*Character, error) {
@@ -33,8 +72,8 @@ func oneDraw(n float64, db *sql.DB) (*Character, error) {
 	}
 	boundary := 0.0
 	for _, raritiy := range config {
-		for _, chara := range raritiy.charas {
-			boundary += raritiy.probability / float64(len(raritiy.charas))
+		for _, chara := range raritiy.Charas {
+			boundary += raritiy.Probability / float64(len(raritiy.Charas))
 			if n <= boundary {
 				return &chara, nil
 			}
@@ -53,7 +92,7 @@ func getConfig(db *sql.DB) ([]Rarity, error) {
 		var r Rarity
 		var stringCharaIDs string
 		var stringCharaNames string
-		if err := rows.Scan(&r.probability, &stringCharaIDs, &stringCharaNames); err != nil {
+		if err := rows.Scan(&r.Probability, &stringCharaIDs, &stringCharaNames); err != nil {
 			return nil, err
 		}
 
@@ -61,9 +100,9 @@ func getConfig(db *sql.DB) ([]Rarity, error) {
 		sliceCharaNames := strings.Split(stringCharaNames, ",")
 		var charas []Character
 		for i, CharaID := range sliceCharaIDs {
-			charas = append(charas, Character{id: CharaID, name: sliceCharaNames[i]})
+			charas = append(charas, Character{ID: CharaID, Name: sliceCharaNames[i]})
 		}
-		r.charas = charas
+		r.Charas = charas
 		config = append(config, r)
 	}
 	if err := rows.Err(); err != nil {
