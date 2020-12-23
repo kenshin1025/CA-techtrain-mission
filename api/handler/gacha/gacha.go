@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type Rarity struct {
@@ -43,9 +45,10 @@ func Draw(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		var times DrawTimes
 		err := json.Unmarshal(buf.Bytes(), &times)
 
+		rand.Seed(time.Now().UnixNano())
 		var res Response
 		for i := 0; i < times.Times; i++ {
-			character, err := oneDraw(0.01, db)
+			character, err := oneDraw(rand.Float64(), db)
 			if err != nil {
 				fmt.Fprint(w, err)
 				return
@@ -60,6 +63,7 @@ func Draw(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		}
 
 		// レスポンス
+		w.Header().Add("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(resJSON)
 	}
