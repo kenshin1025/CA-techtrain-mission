@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"ca-mission/internal/apierr"
 	"ca-mission/internal/model"
 	"ca-mission/internal/usecase"
 	"encoding/json"
@@ -10,19 +11,19 @@ import (
 	"github.com/go-playground/validator"
 )
 
-type ReqUserCreateJSON struct {
+type ReqCreateUserJSON struct {
 	Name string `json:"name" validate:"required"`
 }
 
-type ResUserCreateJSON struct {
+type ResCreateUserJSON struct {
 	Token string `json:"token"`
 }
 
-func UserCreate(userUsecase *usecase.User) http.HandlerFunc {
+func CreateUser(userUsecase *usecase.User) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		//jsonからgoの構造体にデコードする
-		var user ReqUserCreateJSON
+		var user ReqCreateUserJSON
 		//http通信などのストリームデータをデコードする際はNewDecoderが使える
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			log.Fatal(err)
@@ -48,7 +49,7 @@ func UserCreate(userUsecase *usecase.User) http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json;charset=utf-8")
 		w.WriteHeader(http.StatusCreated)
 
-		if err := json.NewEncoder(w).Encode(&ResUserCreateJSON{
+		if err := json.NewEncoder(w).Encode(&ResCreateUserJSON{
 			Token: m.Token,
 		}); err != nil {
 			log.Fatal(err)

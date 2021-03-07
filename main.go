@@ -36,7 +36,7 @@ func main() {
 	r.HandleFunc("/", test)
 
 	userUsecase := usecase.NewUser(repository.NewUser(), db)
-	r.HandleFunc("/user/create", handler.UserCreate(userUsecase)).Methods("POST")
+	r.HandleFunc("/user/create", handler.CreateUser(userUsecase)).Methods("POST")
 
 	r.HandleFunc("/user/get", func(w http.ResponseWriter, r *http.Request) {
 		user.Get(w, r, db)
