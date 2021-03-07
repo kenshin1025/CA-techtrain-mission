@@ -41,6 +41,7 @@ func UserCreate(userUsecase *usecase.User) http.HandlerFunc {
 		}
 		if err := userUsecase.Create(m); err != nil {
 			log.Fatal(err)
+			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)
 			return
 		}
 
