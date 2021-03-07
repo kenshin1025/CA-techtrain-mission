@@ -9,8 +9,12 @@ import (
 	"ca-mission/api/handler/gacha"
 	"ca-mission/api/handler/user"
 	"ca-mission/db"
+	"ca-mission/internal/handler"
+	"ca-mission/internal/repository"
+	"ca-mission/internal/usecase"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 )
 
 func test(w http.ResponseWriter, r *http.Request) {
@@ -27,19 +31,21 @@ func main() {
 	}
 	defer db.Close()
 
-	http.HandleFunc("/", test)
+	r := mux.NewRouter()
 
-	http.HandleFunc("/user/create", func(w http.ResponseWriter, r *http.Request) {
-		user.Create(w, r, db)
-	})
-	http.HandleFunc("/user/get", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/", test)
+
+	userUsecase := usecase.NewUser(repository.NewUser(), db)
+	r.HandleFunc("/user/create", handler.UserCreate(userUsecase)).Methods("POST")
+
+	r.HandleFunc("/user/get", func(w http.ResponseWriter, r *http.Request) {
 		user.Get(w, r, db)
 	})
-	http.HandleFunc("/user/update", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/user/update", func(w http.ResponseWriter, r *http.Request) {
 		user.Update(w, r, db)
 	})
-	http.HandleFunc("/gacha/draw", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/gacha/draw", func(w http.ResponseWriter, r *http.Request) {
 		gacha.Draw(w, r, db)
 	})
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8080", r)
 }
