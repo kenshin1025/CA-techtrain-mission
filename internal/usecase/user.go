@@ -8,6 +8,7 @@ import (
 type userRepository interface {
 	GenerateUserToken() (string, error)
 	Create(db *sql.DB, m *model.User) error
+	Get(db *sql.DB, m *model.User) error
 }
 
 type User struct {
@@ -29,6 +30,14 @@ func (u *User) Create(m *model.User) error {
 	}
 	m.Token = token
 	err = u.userRepo.Create(u.db, m)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (u *User) Get(m *model.User) error {
+	err := u.userRepo.Get(u.db, m)
 	if err != nil {
 		return err
 	}

@@ -19,6 +19,10 @@ type ResCreateUserJSON struct {
 	Token string `json:"token"`
 }
 
+type ResGetUserJSON struct {
+	Name string `json:"name"`
+}
+
 func CreateUser(userUsecase *usecase.User) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -51,6 +55,30 @@ func CreateUser(userUsecase *usecase.User) http.HandlerFunc {
 
 		if err := json.NewEncoder(w).Encode(&ResCreateUserJSON{
 			Token: m.Token,
+		}); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
+func GetUser(userUsecase *usecase.User) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		m := &model.User{
+			Token: r.Header.Get("x-token"),
+		}
+
+		if err := userUsecase.Get(m); err != nil {
+			log.Fatal(err)
+			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json;charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+
+		if err := json.NewEncoder(w).Encode(&ResGetUserJSON{
+			Name: m.Name,
 		}); err != nil {
 			log.Fatal(err)
 		}
