@@ -14,9 +14,9 @@ services:
       - ./db/init.d:/docker-entrypoint-initdb.d
       - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
 
-  go:
+  api:
     build: .
-    container_name: go
+    container_name: api
     volumes:
       - ./:/go/src/app
     ports:
