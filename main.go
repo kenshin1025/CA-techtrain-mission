@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 
@@ -8,7 +9,7 @@ import (
 
 	"ca-mission/api/handler/gacha"
 	"ca-mission/api/handler/user"
-	"ca-mission/db"
+	"ca-mission/internal/config"
 	"ca-mission/internal/handler"
 	"ca-mission/internal/repository"
 	"ca-mission/internal/usecase"
@@ -24,10 +25,9 @@ func test(w http.ResponseWriter, r *http.Request) {
 func main() {
 	fmt.Printf("Starting server at 'http://localhost:8080'\n")
 
-	//DBに接続する
-	db, err := db.ConnectSQL()
+	db, err := sql.Open("mysql", config.Config().GenerateDSN())
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("open failed")
 	}
 	defer db.Close()
 
