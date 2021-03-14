@@ -6,11 +6,13 @@ services:
     ports:
       - 3306:3306
     environment:
+      MYSQL_ROOT_USER: root
       MYSQL_ROOT_PASSWORD: root
+
     volumes:
+      - db-volume:/var/lib/mysql
       - ./db/init.d:/docker-entrypoint-initdb.d
       - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
-    # command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   go:
     build: .
@@ -19,3 +21,7 @@ services:
       - ./:/go/src/app
     ports:
       - "8080:8080"
+    depends_on:
+      - db
+volumes:
+  db-volume:
