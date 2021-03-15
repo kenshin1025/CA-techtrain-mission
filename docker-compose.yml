@@ -21,6 +21,13 @@ services:
       - ./:/go/src/app
     ports:
       - "8080:8080"
+    environment:
+      CA_MISSION_DBHOST: db
+      CA_MISSION_DBPORT: 3306
+      CA_MISSION_DBUSERNAME: root
+      CA_MISSION_DBPASSWORD: root
+      CA_MISSION_DBNAME: ca_mission
+    restart: always
     depends_on:
       - db
 volumes:
