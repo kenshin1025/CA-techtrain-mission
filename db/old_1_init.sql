@@ -10,10 +10,17 @@ CREATE TABLE IF NOT EXISTS user (
   updated_at timestamp NOT NULL default current_timestamp on update current_timestamp
 );
 
+CREATE TABLE IF NOT EXISTS rarity (
+  id int NOT NULL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  probability float NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS chara (
   id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
-  probability int NOT NULL
+  rarity_id int NOT NULL,
+  FOREIGN KEY (rarity_id) REFERENCES rarity(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS user_chara_possession (
@@ -25,7 +32,14 @@ CREATE TABLE IF NOT EXISTS user_chara_possession (
 );
 
 INSERT INTO
-  chara (name, probability)
+  rarity
+VALUES
+  (1, "SSR", 0.01),
+  (2, "SR", 0.1),
+  (3, "R", 0.89);
+
+INSERT INTO
+  chara (name, rarity_id)
 VALUES
   ("めちゃめちゃレア1", 1),
   ("めちゃめちゃレア２", 1),
