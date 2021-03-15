@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 	"sync"
 )
 
@@ -25,13 +26,21 @@ func (c *config) GenerateDSN() string {
 func Config() *config {
 	once.Do(func() {
 		appConfig = &config{
-			DBHost:     "localhost",
-			DBPort:     "3306",
-			DBUserName: "root",
-			DBPassword: "root",
-			DBName:     "ca_mission",
+			DBHost:     envOrDefault("CA_MISSION_DBHOST", "localhost"),
+			DBPort:     envOrDefault("CA_MISSION_DBPORT", "3306"),
+			DBUserName: envOrDefault("CA_MISSION_DBUSERNAME", "root"),
+			DBPassword: envOrDefault("CA_MISSION_DBPASSWORD", "root"),
+			DBName:     envOrDefault("CA_MISSION_DBNAME", "ca_mission"),
 		}
 	})
 
 	return appConfig
+}
+
+func envOrDefault(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }
