@@ -7,7 +7,6 @@ import (
 
 	"net/http"
 
-	"ca-mission/api/handler/gacha"
 	"ca-mission/internal/config"
 	"ca-mission/internal/handler"
 	"ca-mission/internal/repository"
@@ -30,17 +29,21 @@ func main() {
 	}
 	defer db.Close()
 
+	gachaConfig, err := config.GenerateGachaConfig(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", test)
 
 	userUsecase := usecase.NewUser(repository.NewUser(), db)
 	r.HandleFunc("/user/create", handler.CreateUser(userUsecase)).Methods("POST")
-
 	r.HandleFunc("/user/get", handler.GetUser(userUsecase)).Methods("GET")
 	r.HandleFunc("/user/update", handler.UpdateUser(userUsecase)).Methods("PUT")
-	r.HandleFunc("/gacha/draw", func(w http.ResponseWriter, r *http.Request) {
-		gacha.Draw(w, r, db)
-	})
+
+	gachaUsecase := usecase.NewGacha(repository.NewGacha(), db, gachaConfig)
+	r.HandleFunc("/gacha/draw", handler.Gacha(gachaUsecase)).Methods("POST")
 	http.ListenAndServe(":8080", r)
 }
