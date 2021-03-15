@@ -12,6 +12,7 @@ type userRepositoryMock struct {
 	generateUserTokenFn func() (string, error)
 	createFn            func(db *sql.DB, m *model.User) error
 	getFn               func(db *sql.DB, m *model.User) error
+	updateFn            func(db *sql.DB, m *model.User) error
 }
 
 func (s *userRepositoryMock) GenerateUserToken() (string, error) {
@@ -24,6 +25,10 @@ func (s *userRepositoryMock) Create(db *sql.DB, m *model.User) error {
 
 func (s *userRepositoryMock) Get(db *sql.DB, m *model.User) error {
 	return s.getFn(db, m)
+}
+
+func (s *userRepositoryMock) Update(db *sql.DB, m *model.User) error {
+	return s.updateFn(db, m)
 }
 
 //ユーザー作成成功ケース
