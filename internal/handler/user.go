@@ -23,6 +23,10 @@ type ResGetUserJSON struct {
 	Name string `json:"name"`
 }
 
+type ReqUpdateUserJSON struct {
+	Name string `json:"name" validate:"required"`
+}
+
 func CreateUser(userUsecase *usecase.User) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -82,5 +86,39 @@ func GetUser(userUsecase *usecase.User) http.HandlerFunc {
 		}); err != nil {
 			log.Fatal(err)
 		}
+	}
+}
+
+func UpdateUser(userUsecase *usecase.User) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		//jsonからgoの構造体にデコードする
+		var user ReqUpdateUserJSON
+		//http通信などのストリームデータをデコードする際はNewDecoderが使える
+		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		//バリデーション
+		validate := validator.New()
+		if err := validate.Struct(&user); err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		m := &model.User{
+			Name:  user.Name,
+			Token: r.Header.Get("x-token"),
+		}
+
+		if err := userUsecase.Update(m); err != nil {
+			log.Fatal(err)
+			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json;charset=utf-8")
+		w.WriteHeader(http.StatusNoContent)
 	}
 }

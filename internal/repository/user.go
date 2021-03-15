@@ -4,6 +4,7 @@ import (
 	"ca-mission/internal/apierr"
 	"ca-mission/internal/model"
 	"database/sql"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -62,6 +63,26 @@ func (u *User) Get(db *sql.DB, m *model.User) error {
 	err = tx.Commit()
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+func (u *User) Update(db *sql.DB, m *model.User) error {
+	// トランザクション開始
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	// tokenを元にユーザーのnameを更新
+	_, execErr := tx.Exec("UPDATE user SET name = ? WHERE token = ?", m.Name, m.Token)
+	if execErr != nil {
+		_ = tx.Rollback()
+		return execErr
+	}
+	// エラーが起きなければコミット
+	err = tx.Commit()
+	if err != nil {
+		log.Fatal(err)
 	}
 	return nil
 }

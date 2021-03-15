@@ -113,3 +113,54 @@ func Test_E2E_GetUser(t *testing.T) {
 		t.Errorf("name must be %s but %s", name, result.Name)
 	}
 }
+
+func Test_E2E_UpdateUser(t *testing.T) {
+	//DBに接続する
+	db, err := sql.Open("mysql", config.Config().GenerateDSN())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer func() {
+		// DBのcleanを行う
+		db.Exec("set foreign_key_checks = 0")
+		db.Exec("truncate table user")
+		db.Exec("set foreign_key_checks = 1")
+		db.Close()
+	}()
+
+	update_name := "update_name"
+
+	if _, err := db.Exec("insert into user(name, token) values (?, ?)", name, token); err != nil {
+		t.Fatal(err)
+	}
+
+	userUsecase := usecase.NewUser(repository.NewUser(), db)
+
+	var body bytes.Buffer
+	if err := json.NewEncoder(&body).Encode(&handler.ReqUpdateUserJSON{
+		Name: update_name,
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	// requestをシュミレートする
+	req := httptest.NewRequest(http.MethodPut, "/", &body)
+	req.Header.Set("x-token", token)
+	rec := httptest.NewRecorder()
+	http.HandlerFunc(handler.UpdateUser(userUsecase)).ServeHTTP(rec, req)
+
+	// responseのStatus Codeをチェックする
+	if rec.Code != http.StatusNoContent {
+		t.Errorf("status code must be 204 but: %d", rec.Code)
+		t.Fatalf("body: %s", rec.Body.String())
+	}
+
+	// nameがupdateされているかチェックする
+	var actual string
+	if err := db.QueryRow("select name from user where token = ?", token).Scan(&actual); err != nil {
+		t.Fatal(err)
+	}
+	if actual != update_name {
+		t.Errorf("update_name must be %s but %s", update_name, actual)
+	}
+}

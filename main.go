@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"ca-mission/api/handler/gacha"
-	"ca-mission/api/handler/user"
 	"ca-mission/internal/config"
 	"ca-mission/internal/handler"
 	"ca-mission/internal/repository"
@@ -39,9 +38,7 @@ func main() {
 	r.HandleFunc("/user/create", handler.CreateUser(userUsecase)).Methods("POST")
 
 	r.HandleFunc("/user/get", handler.GetUser(userUsecase)).Methods("GET")
-	r.HandleFunc("/user/update", func(w http.ResponseWriter, r *http.Request) {
-		user.Update(w, r, db)
-	})
+	r.HandleFunc("/user/update", handler.UpdateUser(userUsecase)).Methods("PUT")
 	r.HandleFunc("/gacha/draw", func(w http.ResponseWriter, r *http.Request) {
 		gacha.Draw(w, r, db)
 	})
