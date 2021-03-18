@@ -29,7 +29,8 @@ func Test_E2E_Gacha(t *testing.T) {
 		db.Close()
 	}()
 
-	gachaConfig, err := config.GenerateGachaConfig(db)
+	gachaConfigUsecase := usecase.NewGachaConfig(repository.NewGachaConfig(db))
+	gachaConfig, err := gachaConfigUsecase.GenerateGachaConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
