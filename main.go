@@ -8,9 +8,9 @@ import (
 	"net/http"
 
 	"ca-mission/internal/config"
+	"ca-mission/internal/domain/usecase"
 	"ca-mission/internal/handler"
-	"ca-mission/internal/repository"
-	"ca-mission/internal/usecase"
+	"ca-mission/internal/infrastructure/mysql/repository"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -38,12 +38,12 @@ func main() {
 
 	r.HandleFunc("/", test)
 
-	userUsecase := usecase.NewUser(repository.NewUser(), db)
+	userUsecase := usecase.NewUser(repository.NewUser(db))
 	r.HandleFunc("/user/create", handler.CreateUser(userUsecase)).Methods("POST")
 	r.HandleFunc("/user/get", handler.GetUser(userUsecase)).Methods("GET")
 	r.HandleFunc("/user/update", handler.UpdateUser(userUsecase)).Methods("PUT")
 
-	gachaUsecase := usecase.NewGacha(repository.NewGacha(), db, gachaConfig)
+	gachaUsecase := usecase.NewGacha(repository.NewGacha(db), gachaConfig)
 	r.HandleFunc("/gacha/draw", handler.Gacha(gachaUsecase)).Methods("POST")
 	http.ListenAndServe(":8080", r)
 }
