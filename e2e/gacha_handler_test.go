@@ -24,6 +24,7 @@ func Test_E2E_Gacha(t *testing.T) {
 		// DBのcleanを行う
 		db.Exec("set foreign_key_checks = 0")
 		db.Exec("truncate table user")
+		db.Exec("truncate table user_chara_possession")
 		db.Exec("set foreign_key_checks = 1")
 		db.Close()
 	}()
@@ -33,7 +34,13 @@ func Test_E2E_Gacha(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	if _, err := db.Exec("insert into user(name, token) values (?, ?)", name, token); err != nil {
+	userInsertResult, err := db.Exec("insert into user(name, token) values (?, ?)", name, token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	user_id, err := userInsertResult.LastInsertId()
+	if err != nil {
 		t.Fatal(err)
 	}
 
@@ -70,7 +77,7 @@ func Test_E2E_Gacha(t *testing.T) {
 
 	// charaがinsertされているかチェックする
 	var actual int
-	if err := db.QueryRow("select chara_id from user_chara_possession limit 1").Scan(&actual); err != nil {
+	if err := db.QueryRow("select chara_id from user_chara_possession where user_id = ? limit 1", user_id).Scan(&actual); err != nil {
 		t.Fatal(err)
 	}
 	if actual != result.Results[0].CharacterID {
