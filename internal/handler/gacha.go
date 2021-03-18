@@ -2,7 +2,7 @@ package handler
 
 import (
 	"ca-mission/internal/apierr"
-	"ca-mission/internal/usecase"
+	"ca-mission/internal/domain/usecase"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -23,7 +23,7 @@ type Result struct {
 	Name        string `json:"name"`
 }
 
-func Gacha(gachaUsecase *usecase.Gacha) http.HandlerFunc {
+func Gacha(gachaUsecase usecase.Drawer) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//jsonからgoの構造体にデコードする
 		var gacha ReqGachaJSON

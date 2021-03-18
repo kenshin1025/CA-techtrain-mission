@@ -3,9 +3,9 @@ package e2e
 import (
 	"bytes"
 	"ca-mission/internal/config"
+	"ca-mission/internal/domain/usecase"
 	"ca-mission/internal/handler"
-	"ca-mission/internal/repository"
-	"ca-mission/internal/usecase"
+	"ca-mission/internal/infrastructure/mysql/repository"
 	"database/sql"
 	"encoding/json"
 	"log"
@@ -39,7 +39,7 @@ func Test_E2E_Gacha(t *testing.T) {
 
 	const times = 1
 
-	gachaUsecase := usecase.NewGacha(repository.NewGacha(), db, gachaConfig)
+	gachaUsecase := usecase.NewGacha(repository.NewGacha(db), gachaConfig)
 	var body bytes.Buffer
 	if err := json.NewEncoder(&body).Encode(&handler.ReqGachaJSON{
 		Times: times,

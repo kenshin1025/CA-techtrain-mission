@@ -1,20 +1,25 @@
 package repository
 
 import (
+	"ca-mission/internal/domain/repository"
 	"ca-mission/internal/model"
 	"database/sql"
 	"fmt"
 )
 
-type Gacha struct{}
-
-func NewGacha() *Gacha {
-	return &Gacha{}
+type Gacha struct {
+	db *sql.DB
 }
 
-func (g *Gacha) GetUserID(db *sql.DB, user *model.User) error {
+func NewGacha(db *sql.DB) repository.GachaRepository {
+	return &Gacha{
+		db: db,
+	}
+}
+
+func (g *Gacha) GetUserID(user *model.User) error {
 	// トランザクション開始
-	tx, err := db.Begin()
+	tx, err := g.db.Begin()
 	if err != nil {
 		return err
 	}
@@ -32,7 +37,7 @@ func (g *Gacha) GetUserID(db *sql.DB, user *model.User) error {
 	return nil
 }
 
-func (g *Gacha) SaveDrewCharas(db *sql.DB, user *model.User, charas []*model.Chara) error {
+func (g *Gacha) SaveDrewCharas(user *model.User, charas []*model.Chara) error {
 	query := "INSERT INTO user_chara_possession(user_id, chara_id) VALUES"
 	for i, chara := range charas {
 		if i != 0 {
@@ -41,7 +46,7 @@ func (g *Gacha) SaveDrewCharas(db *sql.DB, user *model.User, charas []*model.Cha
 		query += fmt.Sprintf("(%d, %d)", user.ID, chara.ID)
 	}
 	// トランザクション開始
-	tx, err := db.Begin()
+	tx, err := g.db.Begin()
 	if err != nil {
 		return err
 	}
