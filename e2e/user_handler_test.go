@@ -3,9 +3,9 @@ package e2e
 import (
 	"bytes"
 	"ca-mission/internal/config"
+	"ca-mission/internal/domain/usecase"
 	"ca-mission/internal/handler"
-	"ca-mission/internal/repository"
-	"ca-mission/internal/usecase"
+	"ca-mission/internal/infrastructure/mysql/repository"
 	"database/sql"
 	"encoding/json"
 	"log"
@@ -36,7 +36,7 @@ func Test_E2E_CreateUser(t *testing.T) {
 		db.Close()
 	}()
 
-	userUsecase := usecase.NewUser(repository.NewUser(), db)
+	userUsecase := usecase.NewUser(repository.NewUser(db))
 
 	var body bytes.Buffer
 	if err := json.NewEncoder(&body).Encode(&handler.ReqCreateUserJSON{
@@ -89,7 +89,7 @@ func Test_E2E_GetUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	userUsecase := usecase.NewUser(repository.NewUser(), db)
+	userUsecase := usecase.NewUser(repository.NewUser(db))
 
 	// requestをシュミレートする
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -134,7 +134,7 @@ func Test_E2E_UpdateUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	userUsecase := usecase.NewUser(repository.NewUser(), db)
+	userUsecase := usecase.NewUser(repository.NewUser(db))
 
 	var body bytes.Buffer
 	if err := json.NewEncoder(&body).Encode(&handler.ReqUpdateUserJSON{

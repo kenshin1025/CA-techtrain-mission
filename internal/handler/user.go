@@ -2,8 +2,8 @@ package handler
 
 import (
 	"ca-mission/internal/apierr"
+	"ca-mission/internal/domain/usecase"
 	"ca-mission/internal/model"
-	"ca-mission/internal/usecase"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -27,7 +27,7 @@ type ReqUpdateUserJSON struct {
 	Name string `json:"name" validate:"required"`
 }
 
-func CreateUser(userUsecase *usecase.User) http.HandlerFunc {
+func CreateUser(userUsecase usecase.UserInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		//jsonからgoの構造体にデコードする
@@ -65,7 +65,7 @@ func CreateUser(userUsecase *usecase.User) http.HandlerFunc {
 	}
 }
 
-func GetUser(userUsecase *usecase.User) http.HandlerFunc {
+func GetUser(userUsecase usecase.UserInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		m := &model.User{
@@ -89,7 +89,7 @@ func GetUser(userUsecase *usecase.User) http.HandlerFunc {
 	}
 }
 
-func UpdateUser(userUsecase *usecase.User) http.HandlerFunc {
+func UpdateUser(userUsecase usecase.UserInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		//jsonからgoの構造体にデコードする
