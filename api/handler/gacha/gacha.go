@@ -45,10 +45,12 @@ func Draw(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		var times DrawTimes
 		err := json.Unmarshal(buf.Bytes(), &times)
 
+		userToken := r.Header.Get("x-token")
+
 		rand.Seed(time.Now().UnixNano())
 		var res Response
 		for i := 0; i < times.Times; i++ {
-			character, err := oneDraw(rand.Float64(), db)
+			character, err := oneDraw(userToken, rand.Float64(), db)
 			if err != nil {
 				fmt.Fprint(w, err)
 				return
@@ -69,7 +71,8 @@ func Draw(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	}
 }
 
-func oneDraw(n float64, db *sql.DB) (*Character, error) {
+func oneDraw(userToken string, randN float64, db *sql.DB) (*Character, error) {
+	//これoneDrawのたびに呼び出すの効率悪くない？
 	config, err := getConfig(db)
 	if err != nil {
 		return nil, err
@@ -78,7 +81,8 @@ func oneDraw(n float64, db *sql.DB) (*Character, error) {
 	for _, raritiy := range config {
 		for _, chara := range raritiy.Charas {
 			boundary += raritiy.Probability / float64(len(raritiy.Charas))
-			if n <= boundary {
+			if randN <= boundary {
+
 				return &chara, nil
 			}
 		}
