@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"ca-mission/internal/apierr"
-	"ca-mission/internal/config"
+	"ca-mission/internal/cache"
 	"ca-mission/internal/domain/repository"
 	"ca-mission/internal/model"
 	"math/rand"
@@ -15,10 +15,10 @@ type Drawer interface {
 
 type Gacha struct {
 	gachaRepo   repository.GachaRepository
-	gachaConfig *config.GachaConfig
+	gachaConfig *cache.GachaConfig
 }
 
-func NewGacha(gachaRepo repository.GachaRepository, gachaConfig *config.GachaConfig) Drawer {
+func NewGacha(gachaRepo repository.GachaRepository, gachaConfig *cache.GachaConfig) Drawer {
 	return &Gacha{
 		gachaRepo:   gachaRepo,
 		gachaConfig: gachaConfig,
@@ -53,7 +53,7 @@ func (g *Gacha) Draw(times int, token string) ([]*model.Chara, error) {
 	return charas, nil
 }
 
-func oneDraw(gachaConfig *config.GachaConfig, randN int) (*model.Chara, error) {
+func oneDraw(gachaConfig *cache.GachaConfig, randN int) (*model.Chara, error) {
 	boundary := 0
 	for _, chara := range gachaConfig.Charas {
 		boundary += chara.Probability
