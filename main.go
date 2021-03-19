@@ -46,5 +46,8 @@ func main() {
 
 	gachaUsecase := usecase.NewGacha(repository.NewGacha(db), gachaConfig)
 	r.HandleFunc("/gacha/draw", handler.Gacha(gachaUsecase)).Methods("POST")
+
+	characterUsecase := usecase.NewCharacter(repository.NewCharacter(db))
+	r.HandleFunc("/character/list", handler.GetUserCharacterList(characterUsecase)).Methods("GET")
 	http.ListenAndServe(":8080", r)
 }
