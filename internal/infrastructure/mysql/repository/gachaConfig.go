@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
-	"ca-mission/internal/model"
 	"database/sql"
 )
 

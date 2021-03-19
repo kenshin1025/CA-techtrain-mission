@@ -1,8 +1,8 @@
 package usecase
 
 import (
+	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
-	"ca-mission/internal/model"
 )
 
 type CharacterLister interface {

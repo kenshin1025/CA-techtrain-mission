@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"ca-mission/internal/model"
+	"ca-mission/internal/domain/model"
 )
 
 type UserRepository interface {

@@ -3,9 +3,9 @@ package e2e
 import (
 	"bytes"
 	"ca-mission/internal/config"
-	"ca-mission/internal/domain/usecase"
 	"ca-mission/internal/handler"
 	"ca-mission/internal/infrastructure/mysql/repository"
+	"ca-mission/internal/usecase"
 	"database/sql"
 	"encoding/json"
 	"log"

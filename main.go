@@ -8,9 +8,9 @@ import (
 	"net/http"
 
 	"ca-mission/internal/config"
-	"ca-mission/internal/domain/usecase"
 	"ca-mission/internal/handler"
 	"ca-mission/internal/infrastructure/mysql/repository"
+	"ca-mission/internal/usecase"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"

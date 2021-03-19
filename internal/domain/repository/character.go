@@ -1,6 +1,6 @@
 package repository
 
-import "ca-mission/internal/model"
+import "ca-mission/internal/domain/model"
 
 type CharacterRepository interface {
 	GetUserID(user *model.User) error

@@ -2,7 +2,7 @@ package handler
 
 import (
 	"ca-mission/internal/apierr"
-	"ca-mission/internal/domain/usecase"
+	"ca-mission/internal/usecase"
 	"encoding/json"
 	"log"
 	"net/http"

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"ca-mission/internal/model"
+	"ca-mission/internal/domain/model"
 	"database/sql"
 )
 

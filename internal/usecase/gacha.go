@@ -3,8 +3,8 @@ package usecase
 import (
 	"ca-mission/internal/apierr"
 	"ca-mission/internal/cache"
+	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
-	"ca-mission/internal/model"
 	"math/rand"
 	"time"
 )
