@@ -1,12 +1,12 @@
 package usecase
 
 import (
-	"ca-mission/internal/cache"
+	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
 )
 
 type GachaConfigGenerater interface {
-	GenerateGachaConfig() (*cache.GachaConfig, error)
+	GenerateGachaConfig() (*model.GachaConfig, error)
 }
 
 type GachaConfig struct {
@@ -19,13 +19,13 @@ func NewGachaConfig(gachaConfRepo repository.GachaConfigRepository) GachaConfigG
 	}
 }
 
-func (g *GachaConfig) GenerateGachaConfig() (*cache.GachaConfig, error) {
+func (g *GachaConfig) GenerateGachaConfig() (*model.GachaConfig, error) {
 	charas, err := g.gachaConfRepo.GetAllCharas()
 	if err != nil {
 		return nil, err
 	}
 
-	gachaConfig := &cache.GachaConfig{
+	gachaConfig := &model.GachaConfig{
 		Charas:            charas,
 		SumAllProbability: 0,
 	}
