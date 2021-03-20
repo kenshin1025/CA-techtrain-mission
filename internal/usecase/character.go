@@ -6,7 +6,7 @@ import (
 )
 
 type CharacterLister interface {
-	GetUserCharacterList(user *model.User) ([]*model.Chara, error)
+	GetUserCharacterList(user *model.User) ([]*model.UserCharaPossession, error)
 }
 
 type Character struct {
@@ -19,13 +19,13 @@ func NewCharacter(charaRepo repository.CharacterRepository) CharacterLister {
 	}
 }
 
-func (c *Character) GetUserCharacterList(user *model.User) ([]*model.Chara, error) {
+func (c *Character) GetUserCharacterList(user *model.User) ([]*model.UserCharaPossession, error) {
 	if err := c.charaRepo.GetUserID(user); err != nil {
 		return nil, err
 	}
-	charas, err := c.charaRepo.GetCharacterList(user)
+	userCharas, err := c.charaRepo.GetCharacterList(user)
 	if err != nil {
 		return nil, err
 	}
-	return charas, nil
+	return userCharas, nil
 }

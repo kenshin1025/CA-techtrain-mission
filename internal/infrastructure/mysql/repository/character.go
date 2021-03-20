@@ -4,7 +4,6 @@ import (
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
 	"database/sql"
-	"fmt"
 )
 
 type Character struct {
@@ -37,26 +36,24 @@ func (c *Character) GetUserID(user *model.User) error {
 	return nil
 }
 
-func (c *Character) GetCharacterList(user *model.User) ([]*model.Chara, error) {
+func (c *Character) GetCharacterList(user *model.User) ([]*model.UserCharaPossession, error) {
 	rows, err := c.db.Query("SELECT user_chara_possession.id, chara.id, chara.name FROM user_chara_possession INNER JOIN chara ON user_chara_possession.chara_id=chara.id")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var charas []*model.Chara
+	var userCharas []*model.UserCharaPossession
 
 	for rows.Next() {
-		var userCharacterID int
-		var c model.Chara
-		if err := rows.Scan(&userCharacterID, &c.ID, &c.Name); err != nil {
+		var uc model.UserCharaPossession
+		if err := rows.Scan(&uc.ID, &uc.Chara.ID, &uc.Chara.Name); err != nil {
 			return nil, err
 		}
-		fmt.Println(userCharacterID)
-		charas = append(charas, &c)
+		userCharas = append(userCharas, &uc)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
-	return charas, nil
+	return userCharas, nil
 }

@@ -25,28 +25,28 @@ func GetUserCharacterList(characterUsecase usecase.CharacterLister) http.Handler
 			Token: r.Header.Get("x-token"),
 		}
 
-		charas, err := characterUsecase.GetUserCharacterList(u)
+		userCharas, err := characterUsecase.GetUserCharacterList(u)
 		if err != nil {
 			log.Fatal(err)
 			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)
 			return
 		}
 
-		var userCharacters []UserCharacter
-		for _, chara := range charas {
+		var characters []UserCharacter
+		for _, userChara := range userCharas {
 			uc := UserCharacter{
-				UserCharacterID: 0,
-				CharacterID:     chara.ID,
-				Name:            chara.Name,
+				UserCharacterID: userChara.ID,
+				CharacterID:     userChara.Chara.ID,
+				Name:            userChara.Chara.Name,
 			}
-			userCharacters = append(userCharacters, uc)
+			characters = append(characters, uc)
 		}
 
 		w.Header().Set("Content-Type", "application/json;charset=utf-8")
 		w.WriteHeader(http.StatusOK)
 
 		if err := json.NewEncoder(w).Encode(&ResUserCharacterListJSON{
-			Characters: userCharacters,
+			Characters: characters,
 		}); err != nil {
 			log.Fatal(err)
 		}
