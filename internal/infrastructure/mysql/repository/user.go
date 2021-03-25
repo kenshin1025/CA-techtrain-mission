@@ -6,8 +6,6 @@ import (
 	"ca-mission/internal/domain/repository"
 	"database/sql"
 	"log"
-
-	"github.com/google/uuid"
 )
 
 type User struct {
@@ -18,13 +16,6 @@ func NewUser(db *sql.DB) repository.UserRepository {
 	return &User{
 		db: db,
 	}
-}
-
-// uuidを生成して返す関数
-func (u *User) GenerateUserToken() (string, error) {
-	//生成したuuidが被っていないかチェックするようにした方が良いかも
-	uuid, err := uuid.NewRandom()
-	return uuid.String(), err
 }
 
 // 与えられたモデルからユーザー作成する関数

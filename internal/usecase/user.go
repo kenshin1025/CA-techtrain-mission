@@ -3,6 +3,8 @@ package usecase
 import (
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
+
+	"github.com/google/uuid"
 )
 
 type UserInterface interface {
@@ -22,7 +24,7 @@ func NewUser(userRepo repository.UserRepository) UserInterface {
 }
 
 func (u *User) Create(m *model.User) error {
-	token, err := u.userRepo.GenerateUserToken()
+	token, err := GenerateUserToken()
 	if err != nil {
 		return err
 	}
@@ -48,4 +50,11 @@ func (u *User) Update(m *model.User) error {
 		return err
 	}
 	return nil
+}
+
+// uuidを生成して返す関数
+func GenerateUserToken() (string, error) {
+	//生成したuuidが被っていないかチェックするようにした方が良いかも
+	uuid, err := uuid.NewRandom()
+	return uuid.String(), err
 }
