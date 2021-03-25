@@ -2,33 +2,28 @@ package usecase
 
 import (
 	"ca-mission/internal/apierr"
-	"ca-mission/internal/model"
+	"ca-mission/internal/domain/model"
 	"database/sql"
 	"errors"
 	"testing"
 )
 
 type userRepositoryMock struct {
-	generateUserTokenFn func() (string, error)
-	createFn            func(db *sql.DB, m *model.User) error
-	getFn               func(db *sql.DB, m *model.User) error
-	updateFn            func(db *sql.DB, m *model.User) error
+	createFn func(m *model.User) error
+	getFn    func(m *model.User) error
+	updateFn func(m *model.User) error
 }
 
-func (s *userRepositoryMock) GenerateUserToken() (string, error) {
-	return s.generateUserTokenFn()
+func (s *userRepositoryMock) Create(m *model.User) error {
+	return s.createFn(m)
 }
 
-func (s *userRepositoryMock) Create(db *sql.DB, m *model.User) error {
-	return s.createFn(db, m)
+func (s *userRepositoryMock) Get(m *model.User) error {
+	return s.getFn(m)
 }
 
-func (s *userRepositoryMock) Get(db *sql.DB, m *model.User) error {
-	return s.getFn(db, m)
-}
-
-func (s *userRepositoryMock) Update(db *sql.DB, m *model.User) error {
-	return s.updateFn(db, m)
+func (s *userRepositoryMock) Update(m *model.User) error {
+	return s.updateFn(m)
 }
 
 //ユーザー作成成功ケース
@@ -41,7 +36,7 @@ func TestUser_Create(t *testing.T) {
 			return nil
 		},
 	}
-	sut := NewUser(mock, nil)
+	sut := NewUser(mock)
 
 	if err := sut.Create(&model.User{
 		Name: "test_name",
