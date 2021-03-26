@@ -12,6 +12,10 @@ test: test/e2e
 test/e2e: build compose/up/db
 	go test -count=1 ./e2e/...
 
+.PHONY: compose/build
+compose/build:
+	docker-compose build --no-cache
+
 .PHONY: compose/up
 compose/up: compose/up/db
 	docker-compose up -d api
