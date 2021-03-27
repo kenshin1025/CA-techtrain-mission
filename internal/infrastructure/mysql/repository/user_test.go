@@ -9,6 +9,12 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+const (
+	name       = "test_name"
+	token      = "test_token"
+	updateName = "update_test_name"
+)
+
 func TestCreate(t *testing.T) {
 	//DBに接続する
 	db, err := sql.Open("mysql", config.Config().GenerateDSN())
@@ -24,8 +30,8 @@ func TestCreate(t *testing.T) {
 	}()
 
 	u := model.User{
-		Name:  "test_test",
-		Token: "test_token",
+		Name:  name,
+		Token: token,
 	}
 
 	user := NewUser(db)
