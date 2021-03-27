@@ -9,12 +9,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const (
-	name       = "test_name"
-	token      = "test_token"
-	updateName = "update_test_name"
-)
-
 func TestCreate(t *testing.T) {
 	//DBに接続する
 	db, err := sql.Open("mysql", config.Config().GenerateDSN())
