@@ -4,14 +4,19 @@ import (
 	"ca-mission/internal/config"
 	"ca-mission/internal/domain/model"
 	"database/sql"
+	"strconv"
 	"testing"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
+var userTests = []*model.User{
+	{Name: "test_name", Token: "test_token"},
+}
+
 func TestCreate(t *testing.T) {
 	//DBに接続する
-	db, err := sql.Open("mysql", config.Config().GenerateDSN())
+	db, err := conectTestDB()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,24 +28,22 @@ func TestCreate(t *testing.T) {
 		db.Close()
 	}()
 
-	u := model.User{
-		Name:  name,
-		Token: token,
-	}
-
 	user := NewUser(db)
 
-	err = user.Create(&u)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var actual string
-	if err := db.QueryRow("select name from user where token = ?", u.Token).Scan(&actual); err != nil {
-		t.Fatal(err)
-	}
-	if actual != u.Name {
-		t.Errorf("name must be %s but %s", u.Name, actual)
+	for i, tt := range userTests {
+		t.Run(strconv.Itoa(i)+tt.Name, func(t *testing.T) {
+			err := user.Create(tt)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var actual string
+			if err := db.QueryRow("select name from user where token = ?", tt.Token).Scan(&actual); err != nil {
+				t.Fatal(err)
+			}
+			if actual != tt.Name {
+				t.Errorf("name must be %s but %s", tt.Name, actual)
+			}
+		})
 	}
 }
 
