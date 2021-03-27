@@ -19,7 +19,7 @@ func NewUser(db *sql.DB) repository.UserRepository {
 }
 
 // 与えられたモデルからユーザー作成する関数
-func (u *User) Create(m *model.User) error {
+func (u *User) Create(user *model.User) error {
 	// トランザクション開始
 	tx, err := u.db.Begin()
 	if err != nil {
@@ -27,7 +27,7 @@ func (u *User) Create(m *model.User) error {
 	}
 	// DBに追加
 	//レコードを取得する必要のない、クエリはExecメソッドを使う。
-	_, execErr := tx.Exec("INSERT INTO user(name, token) VALUES(?,?)", m.Name, m.Token)
+	_, execErr := tx.Exec("INSERT INTO user(name, token) VALUES(?,?)", user.Name, user.Token)
 	//エラーが起きたらロールバック
 	if execErr != nil {
 		_ = tx.Rollback()
@@ -41,14 +41,14 @@ func (u *User) Create(m *model.User) error {
 	return nil
 }
 
-func (u *User) Get(m *model.User) error {
+func (u *User) Get(user *model.User) error {
 	// トランザクション開始
 	tx, err := u.db.Begin()
 	if err != nil {
 		return err
 	}
 	// tokenを元にユーザーのnameを取得
-	execErr := tx.QueryRow("SELECT name FROM user WHERE token = ?", m.Token).Scan(&m.Name)
+	execErr := tx.QueryRow("SELECT name FROM user WHERE token = ?", user.Token).Scan(&user.Name)
 	if execErr == sql.ErrNoRows {
 		return apierr.ErrUserNotExists
 	} else if execErr != nil {
@@ -63,14 +63,14 @@ func (u *User) Get(m *model.User) error {
 	return nil
 }
 
-func (u *User) Update(m *model.User) error {
+func (u *User) Update(user *model.User) error {
 	// トランザクション開始
 	tx, err := u.db.Begin()
 	if err != nil {
 		return err
 	}
 	// tokenを元にユーザーのnameを更新
-	_, execErr := tx.Exec("UPDATE user SET name = ? WHERE token = ?", m.Name, m.Token)
+	_, execErr := tx.Exec("UPDATE user SET name = ? WHERE token = ?", user.Name, user.Token)
 	if execErr != nil {
 		_ = tx.Rollback()
 		return execErr
