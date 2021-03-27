@@ -30,18 +30,18 @@ func TestCreate(t *testing.T) {
 
 	user := NewUser(db)
 
-	for i, tt := range userTests {
-		t.Run(strconv.Itoa(i)+tt.Name, func(t *testing.T) {
-			err := user.Create(tt)
+	for i, u := range userTests {
+		t.Run(strconv.Itoa(i)+u.Name, func(t *testing.T) {
+			err := user.Create(u)
 			if err != nil {
 				t.Fatal(err)
 			}
 			var actual string
-			if err := db.QueryRow("select name from user where token = ?", tt.Token).Scan(&actual); err != nil {
+			if err := db.QueryRow("select name from user where token = ?", u.Token).Scan(&actual); err != nil {
 				t.Fatal(err)
 			}
-			if actual != tt.Name {
-				t.Errorf("name must be %s but %s", tt.Name, actual)
+			if actual != u.Name {
+				t.Errorf("name must be %s but %s", u.Name, actual)
 			}
 		})
 	}
