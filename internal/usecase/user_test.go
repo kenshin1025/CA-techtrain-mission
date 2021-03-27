@@ -3,7 +3,6 @@ package usecase
 import (
 	"ca-mission/internal/apierr"
 	"ca-mission/internal/domain/model"
-	"database/sql"
 	"errors"
 	"testing"
 )
@@ -29,10 +28,7 @@ func (s *userRepositoryMock) Update(m *model.User) error {
 //ユーザー作成成功ケース
 func TestUser_Create(t *testing.T) {
 	mock := &userRepositoryMock{
-		generateUserTokenFn: func() (string, error) {
-			return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", nil
-		},
-		createFn: func(db *sql.DB, m *model.User) error {
+		createFn: func(m *model.User) error {
 			return nil
 		},
 	}
@@ -48,14 +44,11 @@ func TestUser_Create(t *testing.T) {
 //ユーザー作成失敗ケース
 func TestUser_Create_Failed(t *testing.T) {
 	mock := &userRepositoryMock{
-		generateUserTokenFn: func() (string, error) {
-			return "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", nil
-		},
-		createFn: func(db *sql.DB, m *model.User) error {
+		createFn: func(m *model.User) error {
 			return apierr.ErrInternalServerError
 		},
 	}
-	sut := NewUser(mock, nil)
+	sut := NewUser(mock)
 	err := sut.Create(&model.User{
 		Name: "test_name",
 	})
@@ -67,11 +60,11 @@ func TestUser_Create_Failed(t *testing.T) {
 //ユーザー取得成功ケース
 func TestUser_Get(t *testing.T) {
 	mock := &userRepositoryMock{
-		getFn: func(db *sql.DB, m *model.User) error {
+		getFn: func(m *model.User) error {
 			return nil
 		},
 	}
-	sut := NewUser(mock, nil)
+	sut := NewUser(mock)
 
 	if err := sut.Get(&model.User{
 		Token: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
@@ -83,11 +76,11 @@ func TestUser_Get(t *testing.T) {
 //ユーザーが存在しなかったケース
 func TestUser_Get_NotExistToken(t *testing.T) {
 	mock := &userRepositoryMock{
-		getFn: func(db *sql.DB, m *model.User) error {
+		getFn: func(m *model.User) error {
 			return apierr.ErrUserNotExists
 		},
 	}
-	sut := NewUser(mock, nil)
+	sut := NewUser(mock)
 
 	if err := sut.Get(&model.User{
 		Token: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
@@ -99,11 +92,11 @@ func TestUser_Get_NotExistToken(t *testing.T) {
 //ユーザー取得失敗ケース
 func TestUser_Get_Failed(t *testing.T) {
 	mock := &userRepositoryMock{
-		getFn: func(db *sql.DB, m *model.User) error {
+		getFn: func(m *model.User) error {
 			return apierr.ErrInternalServerError
 		},
 	}
-	sut := NewUser(mock, nil)
+	sut := NewUser(mock)
 
 	if err := sut.Get(&model.User{
 		Token: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
