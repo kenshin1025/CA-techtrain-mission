@@ -25,6 +25,13 @@ CREATE TABLE IF NOT EXISTS user_chara_possession (
 );
 
 INSERT INTO
+  user (name, token)
+VALUES
+  ("test1", "aaaa"),
+  ("test2", "bbbb"),
+  ("test3", "cccc");
+
+INSERT INTO
   chara (name, probability)
 VALUES
   ("めちゃめちゃレア1", 1),
