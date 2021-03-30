@@ -5,7 +5,7 @@ import (
 )
 
 type UserRepository interface {
-	Create(m *model.User) error
-	Get(m *model.User) error
+	Create(m *model.User) (int, error)
+	GetByToken(token string) (*model.User, error)
 	Update(m *model.User) error
 }
