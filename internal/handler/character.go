@@ -2,7 +2,6 @@ package handler
 
 import (
 	"ca-mission/internal/apierr"
-	"ca-mission/internal/domain/model"
 	"ca-mission/internal/usecase"
 	"encoding/json"
 	"log"
@@ -19,13 +18,10 @@ type UserCharacter struct {
 	Name            string `json:"name"`
 }
 
-func GetUserCharacterList(characterUsecase usecase.CharacterLister) http.HandlerFunc {
+func GetUsersCharacterList(characterUsecase *usecase.CharacterUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		u := &model.User{
-			Token: r.Header.Get("x-token"),
-		}
 
-		userCharas, err := characterUsecase.GetUserCharacterList(u)
+		userCharas, err := characterUsecase.GetUsersCharaListByToken(r.Header.Get("x-token"))
 		if err != nil {
 			log.Fatal(err)
 			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)

@@ -5,25 +5,24 @@ import (
 	"ca-mission/internal/domain/repository"
 )
 
-type CharacterLister interface {
-	GetUserCharacterList(user *model.User) ([]*model.UserCharaPossession, error)
+type CharacterUsecase struct {
+	userRepo repository.UserRepository
+	ucpRepo  repository.UserCharaPossessionRepository
 }
 
-type Character struct {
-	charaRepo repository.CharacterRepository
-}
-
-func NewCharacter(charaRepo repository.CharacterRepository) CharacterLister {
-	return &Character{
-		charaRepo: charaRepo,
+func NewCharacterUsecase(userRepo repository.UserRepository, ucpRepo repository.UserCharaPossessionRepository) *CharacterUsecase {
+	return &CharacterUsecase{
+		userRepo: userRepo,
+		ucpRepo:  ucpRepo,
 	}
 }
 
-func (c *Character) GetUserCharacterList(user *model.User) ([]*model.UserCharaPossession, error) {
-	if err := c.charaRepo.GetUserID(user); err != nil {
+func (c *CharacterUsecase) GetUsersCharaListByToken(token string) ([]*model.UserCharaPossession, error) {
+	user, err := c.userRepo.GetByToken(token)
+	if err != nil {
 		return nil, err
 	}
-	userCharas, err := c.charaRepo.GetCharacterList(user)
+	userCharas, err := c.ucpRepo.GetCharacterList(user)
 	if err != nil {
 		return nil, err
 	}

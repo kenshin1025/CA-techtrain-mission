@@ -39,7 +39,7 @@ func (r *UserCharaPossessionRepository) GetCharacterList(user *model.User) ([]*m
 	return userCharas, nil
 }
 
-func (r *UserCharaPossessionRepository) SaveDrewCharas(user *model.User, charas []*model.Chara) error {
+func (r *UserCharaPossessionRepository) SaveCharas(user *model.User, charas []*model.Chara) error {
 	query := "INSERT INTO user_chara_possession(user_id, chara_id) VALUES"
 	for i, chara := range charas {
 		if i != 0 {

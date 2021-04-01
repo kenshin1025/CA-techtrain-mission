@@ -68,11 +68,8 @@ func CreateUser(userUsecase usecase.UserInterface) http.HandlerFunc {
 func GetUser(userUsecase usecase.UserInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		m := &model.User{
-			Token: r.Header.Get("x-token"),
-		}
-
-		if err := userUsecase.Get(m); err != nil {
+		user, err := userUsecase.GetByToken(r.Header.Get("x-token"))
+		if err != nil {
 			log.Fatal(err)
 			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)
 			return
@@ -82,7 +79,7 @@ func GetUser(userUsecase usecase.UserInterface) http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 
 		if err := json.NewEncoder(w).Encode(&ResGetUserJSON{
-			Name: m.Name,
+			Name: user.Name,
 		}); err != nil {
 			log.Fatal(err)
 		}
