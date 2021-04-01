@@ -27,7 +27,7 @@ type ReqUpdateUserJSON struct {
 	Name string `json:"name" validate:"required"`
 }
 
-func CreateUser(userUsecase usecase.UserUsecase) http.HandlerFunc {
+func CreateUser(userUsecase *usecase.UserUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		//jsonからgoの構造体にデコードする
