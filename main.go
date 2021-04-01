@@ -7,6 +7,7 @@ import (
 
 	"net/http"
 
+	"ca-mission/internal/cache"
 	"ca-mission/internal/config"
 	"ca-mission/internal/handler"
 	"ca-mission/internal/infrastructure/mysql/repository"
@@ -39,8 +40,8 @@ func main() {
 	userCharaPossessionRepository := repository.NewUserCharaPossessionRepository(db)
 
 	// Cacheの初期化
-	gachaConfigUsecase := usecase.NewGachaConfig(charaRepository)
-	gachaConfig, err := gachaConfigUsecase.GenerateGachaConfig()
+	GachaConfigGenerater := cache.NewGachaConfigGenerater(charaRepository)
+	gachaConfig, err := GachaConfigGenerater.GenerateGachaConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
