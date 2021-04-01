@@ -23,7 +23,7 @@ type Result struct {
 	Name        string `json:"name"`
 }
 
-func Gacha(gachaUsecase usecase.Drawer) http.HandlerFunc {
+func Gacha(gachaUsecase *usecase.GachaUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		//jsonからgoの構造体にデコードする
 		var gacha ReqGachaJSON
