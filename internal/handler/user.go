@@ -27,7 +27,7 @@ type ReqUpdateUserJSON struct {
 	Name string `json:"name" validate:"required"`
 }
 
-func CreateUser(userUsecase usecase.UserInterface) http.HandlerFunc {
+func CreateUser(userUsecase usecase.UserUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		//jsonからgoの構造体にデコードする
@@ -65,7 +65,7 @@ func CreateUser(userUsecase usecase.UserInterface) http.HandlerFunc {
 	}
 }
 
-func GetUser(userUsecase usecase.UserInterface) http.HandlerFunc {
+func GetUser(userUsecase usecase.UserUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		user, err := userUsecase.GetByToken(r.Header.Get("x-token"))
@@ -86,7 +86,7 @@ func GetUser(userUsecase usecase.UserInterface) http.HandlerFunc {
 	}
 }
 
-func UpdateUser(userUsecase usecase.UserInterface) http.HandlerFunc {
+func UpdateUser(userUsecase usecase.UserUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		//jsonからgoの構造体にデコードする
