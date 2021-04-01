@@ -7,17 +7,11 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserInterface interface {
-	Create(m *model.User) error
-	GetByToken(token string) (*model.User, error)
-	Update(m *model.User) error
-}
-
 type UserUsecase struct {
 	userRepo repository.UserRepository
 }
 
-func NewUserUsecase(userRepo repository.UserRepository) UserInterface {
+func NewUserUsecase(userRepo repository.UserRepository) *UserUsecase {
 	return &UserUsecase{
 		userRepo: userRepo,
 	}

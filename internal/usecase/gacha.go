@@ -8,17 +8,13 @@ import (
 	"time"
 )
 
-type Drawer interface {
-	Draw(times int, token string) ([]*model.Chara, error)
-}
-
 type GachaUsecase struct {
 	userRepo    repository.UserRepository
 	ucpRepo     repository.UserCharaPossessionRepository
 	gachaConfig *model.GachaConfig
 }
 
-func NewGachaUsecase(userRepo repository.UserRepository, ucpRepo repository.UserCharaPossessionRepository, gachaConfig *model.GachaConfig) Drawer {
+func NewGachaUsecase(userRepo repository.UserRepository, ucpRepo repository.UserCharaPossessionRepository, gachaConfig *model.GachaConfig) *GachaUsecase {
 	return &GachaUsecase{
 		userRepo:    userRepo,
 		ucpRepo:     ucpRepo,
