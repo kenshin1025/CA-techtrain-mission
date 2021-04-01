@@ -9,7 +9,6 @@ import (
 
 	"ca-mission/internal/config"
 	"ca-mission/internal/handler"
-	"ca-mission/internal/handler/middleware/auth"
 	"ca-mission/internal/infrastructure/mysql/repository"
 	"ca-mission/internal/usecase"
 
@@ -51,8 +50,8 @@ func main() {
 	gachaUsecase := usecase.NewGacha(gachaRepository, gachaConfig)
 	characterUsecase := usecase.NewCharacter(characterRepository)
 
-	// Middlewareの初期化
-	auth.SetUserRepository(userRepository)
+	// // Middlewareの初期化
+	// auth.SetUserRepository(userRepository)
 
 	r.HandleFunc("/user/create", handler.CreateUser(userUsecase)).Methods("POST")
 	r.HandleFunc("/user/get", handler.GetUser(userUsecase)).Methods("GET")
