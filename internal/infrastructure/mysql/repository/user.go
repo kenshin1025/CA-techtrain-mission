@@ -8,18 +8,18 @@ import (
 	"log"
 )
 
-type User struct {
+type UserRepository struct {
 	db *sql.DB
 }
 
-func NewUser(db *sql.DB) repository.UserRepository {
-	return &User{
+func NewUserRepository(db *sql.DB) repository.UserRepository {
+	return &UserRepository{
 		db: db,
 	}
 }
 
 // 与えられたモデルからユーザー作成する関数
-func (u *User) Create(user *model.User) (int, error) {
+func (u *UserRepository) Create(user *model.User) (int, error) {
 	// DBに追加
 	//レコードを取得する必要のない、クエリはExecメソッドを使う。
 	result, execErr := u.db.Exec("INSERT INTO user(name, token) VALUES(?,?)", user.Name, user.Token)
@@ -36,7 +36,7 @@ func (u *User) Create(user *model.User) (int, error) {
 	return int(id), nil
 }
 
-func (u *User) GetByToken(token string) (*model.User, error) {
+func (u *UserRepository) GetByToken(token string) (*model.User, error) {
 	user := model.User{
 		Token: token,
 	}
@@ -50,7 +50,7 @@ func (u *User) GetByToken(token string) (*model.User, error) {
 	return &user, nil
 }
 
-func (u *User) Update(user *model.User) error {
+func (u *UserRepository) Update(user *model.User) error {
 	// トランザクション開始
 	tx, err := u.db.Begin()
 	if err != nil {

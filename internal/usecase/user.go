@@ -9,42 +9,42 @@ import (
 
 type UserInterface interface {
 	Create(m *model.User) error
-	Get(m *model.User) error
+	GetByToken(token string) (*model.User, error)
 	Update(m *model.User) error
 }
 
-type User struct {
+type UserUsecase struct {
 	userRepo repository.UserRepository
 }
 
-func NewUser(userRepo repository.UserRepository) UserInterface {
-	return &User{
+func NewUserUsecase(userRepo repository.UserRepository) UserInterface {
+	return &UserUsecase{
 		userRepo: userRepo,
 	}
 }
 
-func (u *User) Create(m *model.User) error {
+func (u *UserUsecase) Create(m *model.User) error {
 	token, err := GenerateUserToken()
 	if err != nil {
 		return err
 	}
 	m.Token = token
-	err = u.userRepo.Create(m)
+	_, err = u.userRepo.Create(m)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (u *User) Get(m *model.User) error {
-	err := u.userRepo.Get(m)
+func (u *UserUsecase) GetByToken(token string) (*model.User, error) {
+	user, err := u.userRepo.GetByToken(token)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return user, nil
 }
 
-func (u *User) Update(m *model.User) error {
+func (u *UserUsecase) Update(m *model.User) error {
 	err := u.userRepo.Update(m)
 	if err != nil {
 		return err

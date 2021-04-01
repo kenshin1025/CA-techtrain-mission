@@ -34,21 +34,21 @@ func main() {
 	r.HandleFunc("/", test)
 
 	// Repositoryの初期化
-	userRepository := repository.NewUser(db)
-	gachaRepository := repository.NewGacha(db)
-	characterRepository := repository.NewCharacter(db)
+	userRepository := repository.NewUserRepository(db)
+	charaRepository := repository.NewCharaRepository(db)
+	userCharaPossessionRepository := repository.NewUserCharaPossessionRepository(db)
 
 	// Cacheの初期化
-	gachaConfigUsecase := usecase.NewGachaConfig(repository.NewGachaConfig(db))
+	gachaConfigUsecase := usecase.NewGachaConfig(charaRepository)
 	gachaConfig, err := gachaConfigUsecase.GenerateGachaConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Usecaseの初期化
-	userUsecase := usecase.NewUser(userRepository)
-	gachaUsecase := usecase.NewGacha(gachaRepository, gachaConfig)
-	characterUsecase := usecase.NewCharacter(characterRepository)
+	userUsecase := usecase.NewUserUsecase(userRepository)
+	gachaUsecase := usecase.NewGachaUsecase(userRepository, userCharaPossessionRepository, gachaConfig)
+	characterUsecase := usecase.NewCharacterUsecase(userRepository, userCharaPossessionRepository)
 
 	// // Middlewareの初期化
 	// auth.SetUserRepository(userRepository)
@@ -59,7 +59,7 @@ func main() {
 
 	r.HandleFunc("/gacha/draw", handler.Gacha(gachaUsecase)).Methods("POST")
 
-	r.HandleFunc("/character/list", handler.GetUserCharacterList(characterUsecase)).Methods("GET")
+	r.HandleFunc("/character/list", handler.GetUsersCharacterList(characterUsecase)).Methods("GET")
 
 	http.ListenAndServe(":8080", r)
 }
