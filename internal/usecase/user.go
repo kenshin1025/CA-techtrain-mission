@@ -3,6 +3,7 @@ package usecase
 import (
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
+	"context"
 
 	"github.com/google/uuid"
 )
@@ -17,29 +18,29 @@ func NewUserUsecase(userRepo repository.UserRepository) *UserUsecase {
 	}
 }
 
-func (u *UserUsecase) Create(m *model.User) error {
+func (u *UserUsecase) Create(ctx context.Context, m *model.User) error {
 	token, err := GenerateUserToken()
 	if err != nil {
 		return err
 	}
 	m.Token = token
-	_, err = u.userRepo.Create(m)
+	_, err = u.userRepo.Create(ctx, m)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (u *UserUsecase) GetByToken(token string) (*model.User, error) {
-	user, err := u.userRepo.GetByToken(token)
+func (u *UserUsecase) GetByToken(ctx context.Context, token string) (*model.User, error) {
+	user, err := u.userRepo.GetByToken(ctx, token)
 	if err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (u *UserUsecase) Update(m *model.User) error {
-	err := u.userRepo.Update(m)
+func (u *UserUsecase) Update(ctx context.Context, m *model.User) error {
+	err := u.userRepo.Update(ctx, m)
 	if err != nil {
 		return err
 	}
