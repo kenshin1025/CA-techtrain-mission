@@ -30,6 +30,8 @@ type ReqUpdateUserJSON struct {
 func CreateUser(userUsecase *usecase.UserUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
+		ctx := r.Context()
+
 		//jsonからgoの構造体にデコードする
 		var user ReqCreateUserJSON
 		//http通信などのストリームデータをデコードする際はNewDecoderが使える
@@ -48,7 +50,7 @@ func CreateUser(userUsecase *usecase.UserUsecase) http.HandlerFunc {
 		m := &model.User{
 			Name: user.Name,
 		}
-		if err := userUsecase.Create(m); err != nil {
+		if err := userUsecase.Create(ctx, m); err != nil {
 			log.Fatal(err)
 			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)
 			return
@@ -65,10 +67,12 @@ func CreateUser(userUsecase *usecase.UserUsecase) http.HandlerFunc {
 	}
 }
 
-func GetUser(userUsecase usecase.UserUsecase) http.HandlerFunc {
+func GetUser(userUsecase *usecase.UserUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		user, err := userUsecase.GetByToken(r.Header.Get("x-token"))
+		ctx := r.Context()
+
+		user, err := userUsecase.GetByToken(ctx, r.Header.Get("x-token"))
 		if err != nil {
 			log.Fatal(err)
 			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)
@@ -86,8 +90,10 @@ func GetUser(userUsecase usecase.UserUsecase) http.HandlerFunc {
 	}
 }
 
-func UpdateUser(userUsecase usecase.UserUsecase) http.HandlerFunc {
+func UpdateUser(userUsecase *usecase.UserUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		ctx := r.Context()
 
 		//jsonからgoの構造体にデコードする
 		var user ReqUpdateUserJSON
@@ -109,7 +115,7 @@ func UpdateUser(userUsecase usecase.UserUsecase) http.HandlerFunc {
 			Token: r.Header.Get("x-token"),
 		}
 
-		if err := userUsecase.Update(m); err != nil {
+		if err := userUsecase.Update(ctx, m); err != nil {
 			log.Fatal(err)
 			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)
 			return
