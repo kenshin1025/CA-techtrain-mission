@@ -3,6 +3,7 @@ package repository
 import (
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
+	"context"
 	"database/sql"
 	"fmt"
 )
@@ -17,8 +18,8 @@ func NewUserCharaPossessionRepository(db *sql.DB) repository.UserCharaPossession
 	}
 }
 
-func (r *UserCharaPossessionRepository) GetCharacterList(user *model.User) ([]*model.UserCharaPossession, error) {
-	rows, err := r.db.Query("SELECT user_chara_possession.id, chara.id, chara.name FROM user_chara_possession INNER JOIN chara ON user_chara_possession.chara_id=chara.id")
+func (r *UserCharaPossessionRepository) GetCharacterList(ctx context.Context, user *model.User) ([]*model.UserCharaPossession, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT user_chara_possession.id, chara.id, chara.name FROM user_chara_possession INNER JOIN chara ON user_chara_possession.chara_id=chara.id")
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +40,7 @@ func (r *UserCharaPossessionRepository) GetCharacterList(user *model.User) ([]*m
 	return userCharas, nil
 }
 
-func (r *UserCharaPossessionRepository) SaveCharas(user *model.User, charas []*model.Chara) error {
+func (r *UserCharaPossessionRepository) SaveCharas(ctx context.Context, user *model.User, charas []*model.Chara) error {
 	query := "INSERT INTO user_chara_possession(user_id, chara_id) VALUES"
 	for i, chara := range charas {
 		if i != 0 {
@@ -54,7 +55,7 @@ func (r *UserCharaPossessionRepository) SaveCharas(user *model.User, charas []*m
 	}
 	// DBに追加
 	//レコードを取得する必要のない、クエリはExecメソッドを使う。
-	_, execErr := tx.Exec(query)
+	_, execErr := tx.ExecContext(ctx, query)
 	//エラーが起きたらロールバック
 	if execErr != nil {
 		_ = tx.Rollback()

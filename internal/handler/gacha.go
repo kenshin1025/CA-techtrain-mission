@@ -25,6 +25,9 @@ type Result struct {
 
 func Gacha(gachaUsecase *usecase.GachaUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		ctx := r.Context()
+
 		//jsonからgoの構造体にデコードする
 		var gacha ReqGachaJSON
 		//http通信などのストリームデータをデコードする際はNewDecoderが使える
@@ -40,7 +43,7 @@ func Gacha(gachaUsecase *usecase.GachaUsecase) http.HandlerFunc {
 			return
 		}
 
-		charas, err := gachaUsecase.Draw(gacha.Times, r.Header.Get("x-token"))
+		charas, err := gachaUsecase.Draw(ctx, gacha.Times, r.Header.Get("x-token"))
 		if err != nil {
 			log.Fatal(err)
 			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)

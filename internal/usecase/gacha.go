@@ -4,6 +4,7 @@ import (
 	"ca-mission/internal/apierr"
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
+	"context"
 	"math/rand"
 	"time"
 )
@@ -22,7 +23,7 @@ func NewGachaUsecase(userRepo repository.UserRepository, ucpRepo repository.User
 	}
 }
 
-func (u *GachaUsecase) Draw(times int, token string) ([]*model.Chara, error) {
+func (u *GachaUsecase) Draw(ctx context.Context, times int, token string) ([]*model.Chara, error) {
 	var charas []*model.Chara
 
 	rand.Seed(time.Now().UnixNano())
@@ -35,12 +36,12 @@ func (u *GachaUsecase) Draw(times int, token string) ([]*model.Chara, error) {
 		charas = append(charas, chara)
 	}
 
-	user, err := u.userRepo.GetByToken(token)
+	user, err := u.userRepo.GetByToken(ctx, token)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := u.ucpRepo.SaveCharas(user, charas); err != nil {
+	if err := u.ucpRepo.SaveCharas(ctx, user, charas); err != nil {
 		return nil, err
 	}
 
