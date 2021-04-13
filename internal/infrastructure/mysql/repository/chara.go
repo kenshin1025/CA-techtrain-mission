@@ -3,6 +3,7 @@ package repository
 import (
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
+	"context"
 	"database/sql"
 )
 
@@ -16,8 +17,8 @@ func NewCharaRepository(db *sql.DB) repository.CharaRepository {
 	}
 }
 
-func (r *CharaRepository) GetAllCharas() ([]*model.Chara, error) {
-	rows, err := r.db.Query("SELECT * FROM chara")
+func (r *CharaRepository) GetAllCharas(ctx context.Context) ([]*model.Chara, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT * FROM chara")
 	if err != nil {
 		return nil, err
 	}

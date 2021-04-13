@@ -4,6 +4,7 @@ import (
 	"ca-mission/internal/apierr"
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
+	"context"
 	"database/sql"
 	"log"
 )
@@ -19,10 +20,10 @@ func NewUserRepository(db *sql.DB) repository.UserRepository {
 }
 
 // 与えられたモデルからユーザー作成する関数
-func (r *UserRepository) Create(user *model.User) (int, error) {
+func (r *UserRepository) Create(ctx context.Context, user *model.User) (int, error) {
 	// DBに追加
 	//レコードを取得する必要のない、クエリはExecメソッドを使う。
-	result, execErr := r.db.Exec("INSERT INTO user(name, token) VALUES(?,?)", user.Name, user.Token)
+	result, execErr := r.db.ExecContext(ctx, "INSERT INTO user(name, token) VALUES(?,?)", user.Name, user.Token)
 	//エラーが起きたらロールバック
 	if execErr != nil {
 		return 0, execErr
@@ -36,12 +37,12 @@ func (r *UserRepository) Create(user *model.User) (int, error) {
 	return int(id), nil
 }
 
-func (r *UserRepository) GetByToken(token string) (*model.User, error) {
+func (r *UserRepository) GetByToken(ctx context.Context, token string) (*model.User, error) {
 	user := model.User{
 		Token: token,
 	}
 	// tokenを元にユーザーのnameを取得
-	execErr := r.db.QueryRow("SELECT id, name FROM user WHERE token = ?", token).Scan(&user.ID, &user.Name)
+	execErr := r.db.QueryRowContext(ctx, "SELECT id, name FROM user WHERE token = ?", token).Scan(&user.ID, &user.Name)
 	if execErr == sql.ErrNoRows {
 		return nil, apierr.ErrUserNotExists
 	} else if execErr != nil {
@@ -50,14 +51,14 @@ func (r *UserRepository) GetByToken(token string) (*model.User, error) {
 	return &user, nil
 }
 
-func (r *UserRepository) Update(user *model.User) error {
+func (r *UserRepository) Update(ctx context.Context, user *model.User) error {
 	// トランザクション開始
 	tx, err := r.db.Begin()
 	if err != nil {
 		return err
 	}
 	// tokenを元にユーザーのnameを更新
-	_, execErr := tx.Exec("UPDATE user SET name = ? WHERE token = ?", user.Name, user.Token)
+	_, execErr := tx.ExecContext(ctx, "UPDATE user SET name = ? WHERE token = ?", user.Name, user.Token)
 	if execErr != nil {
 		_ = tx.Rollback()
 		return execErr

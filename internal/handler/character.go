@@ -21,7 +21,9 @@ type UserCharacter struct {
 func GetUsersCharacterList(characterUsecase *usecase.CharacterUsecase) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		userCharas, err := characterUsecase.GetUsersCharaListByToken(r.Header.Get("x-token"))
+		ctx := r.Context()
+
+		userCharas, err := characterUsecase.GetUsersCharaListByToken(ctx, r.Header.Get("x-token"))
 		if err != nil {
 			log.Fatal(err)
 			writeError(w, http.StatusInternalServerError, apierr.ErrInternalServerError)

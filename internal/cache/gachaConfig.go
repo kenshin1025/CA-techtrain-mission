@@ -3,6 +3,7 @@ package cache
 import (
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
+	"context"
 )
 
 type GachaConfigGenerater struct {
@@ -16,7 +17,10 @@ func NewGachaConfigGenerater(charaRepo repository.CharaRepository) *GachaConfigG
 }
 
 func (g *GachaConfigGenerater) GenerateGachaConfig() (*model.GachaConfig, error) {
-	charas, err := g.charaRepo.GetAllCharas()
+
+	ctx := context.Background()
+
+	charas, err := g.charaRepo.GetAllCharas(ctx)
 	if err != nil {
 		return nil, err
 	}

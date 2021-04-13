@@ -1,7 +1,10 @@
 package repository
 
-import "ca-mission/internal/domain/model"
+import (
+	"ca-mission/internal/domain/model"
+	"context"
+)
 
 type CharaRepository interface {
-	GetAllCharas() ([]*model.Chara, error)
+	GetAllCharas(ctx context.Context) ([]*model.Chara, error)
 }

@@ -5,6 +5,7 @@ import (
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
 	"ca-mission/internal/usecase/database"
+	"context"
 	"database/sql"
 	"log"
 	"math/rand"
@@ -25,7 +26,7 @@ func NewGachaUsecase(userRepo repository.UserRepository, ucpRepo repository.User
 	}
 }
 
-func (u *GachaUsecase) Draw(times int, token string) ([]*model.Chara, error) {
+func (u *GachaUsecase) Draw(ctx context.Context, times int, token string) ([]*model.Chara, error) {
 	var charas []*model.Chara
 
 	rand.Seed(time.Now().UnixNano())
@@ -38,7 +39,7 @@ func (u *GachaUsecase) Draw(times int, token string) ([]*model.Chara, error) {
 		charas = append(charas, chara)
 	}
 
-	user, err := u.userRepo.GetByToken(token)
+	user, err := u.userRepo.GetByToken(ctx, token)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func (u *GachaUsecase) Draw(times int, token string) ([]*model.Chara, error) {
 	defer database.Db.Close()
 
 	err = database.Db.Transaction(func(tx *sql.Tx) error {
-		err := u.ucpRepo.SaveCharas(tx, user, charas)
+		err := u.ucpRepo.SaveCharas(tx, ctx, user, charas)
 		if err != nil {
 			return err
 		}
