@@ -4,6 +4,9 @@ import (
 	"ca-mission/internal/apierr"
 	"ca-mission/internal/domain/model"
 	"ca-mission/internal/domain/repository"
+	"ca-mission/internal/usecase/database"
+	"database/sql"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -40,8 +43,23 @@ func (u *GachaUsecase) Draw(times int, token string) ([]*model.Chara, error) {
 		return nil, err
 	}
 
-	if err := u.ucpRepo.SaveCharas(user, charas); err != nil {
-		return nil, err
+	// トランザクションのため
+	err = database.Db.Connection()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer database.Db.Close()
+
+	err = database.Db.Transaction(func(tx *sql.Tx) error {
+		err := u.ucpRepo.SaveCharas(tx, user, charas)
+		if err != nil {
+			return err
+		}
+		return nil
+		// return errors.New("トランザクションできてるか？")
+	})
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	return charas, nil

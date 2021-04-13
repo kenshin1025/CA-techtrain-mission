@@ -54,9 +54,9 @@ func main() {
 	// // Middlewareの初期化
 	// auth.SetUserRepository(userRepository)
 
-	r.HandleFunc("/user/create", handler.CreateUser(userUsecase)).Methods("POST")
-	r.HandleFunc("/user/get", handler.GetUser(userUsecase)).Methods("GET")
-	r.HandleFunc("/user/update", handler.UpdateUser(userUsecase)).Methods("PUT")
+	r.HandleFunc("/user/create", handler.CreateUser(*userUsecase)).Methods("POST")
+	r.HandleFunc("/user/get", handler.GetUser(*userUsecase)).Methods("GET")
+	r.HandleFunc("/user/update", handler.UpdateUser(*userUsecase)).Methods("PUT")
 
 	r.HandleFunc("/gacha/draw", handler.Gacha(gachaUsecase)).Methods("POST")
 
